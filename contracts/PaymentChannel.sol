@@ -12,6 +12,13 @@ contract PaymentChannel {
         expiration = block.timestamp + _duration;
     }
 
+    function isValidSignature(uint256 amount, bytes memory sig) internal view returns(bool){
+        bytes32 message = getEthSignedMessageHash(keccak256(abi.encodePacked(this, amount)));
+
+        // Check that the signature is from the payment sender.
+        return recoverSigner(message, sig) == sender;
+    }
+
     function getEthSignedMessageHash(bytes32 message) internal pure returns(bytes32){
         return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
     }
