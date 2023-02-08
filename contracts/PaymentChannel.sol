@@ -12,6 +12,13 @@ contract PaymentChannel {
         expiration = block.timestamp + _duration;
     }
 
+    function extend(uint256 newExpiration) public {
+        require(msg.sender == sender, "Only for sender");
+        require(newExpiration > expiration, "Must be after current expiration");
+
+        expiration = newExpiration;
+    }
+
     function isValidSignature(uint256 amount, bytes memory sig) internal view returns(bool){
         bytes32 message = getEthSignedMessageHash(keccak256(abi.encodePacked(this, amount)));
 
