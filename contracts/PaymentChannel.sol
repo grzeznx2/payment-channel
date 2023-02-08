@@ -12,6 +12,10 @@ contract PaymentChannel {
         expiration = block.timestamp + _duration;
     }
 
+    function getEthSignedMessageHash(bytes32 message) internal pure returns(bytes32){
+        return keccak256(abi.encodePacked("\x19Ethereum Signed Message:\n32", message));
+    }
+
     function recoverSigner(bytes32 message, bytes memory sig) internal pure returns (address){
         (uint8 v, bytes32 r, bytes32 s) = splitSignature(sig);
 
