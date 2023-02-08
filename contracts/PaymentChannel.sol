@@ -5,11 +5,27 @@ contract PaymentChannel {
     address public sender;
     address public recipient;
     uint256 public expiration;
+    bool public transfering;
 
     constructor(address _recipient, uint256 _duration) payable {
         sender = msg.sender;
         recipient = _recipient;
         expiration = block.timestamp + _duration;
+    }
+
+    function close(uint256 amount, bytes memory sig) public {
+        require(msg.sender == recipient, "Only recipient");
+        require(isValidSignature(amount, sig), "Invalid signature");
+        require(!transfering, "Already transfering funds");
+
+        transfering = true;
+
+        (bool success,) = payable(recipient).call{value: amount}("");
+        
+        transfering = false;
+
+        require(success, "Transfer failed");
+        selfdestruct(payable(sender));
     }
 
     function extend(uint256 newExpiration) public {
